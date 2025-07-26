@@ -6,9 +6,13 @@ import {
   deleteFavourtie,
   getFavourites,
 } from "./controllers/favourites.controller.js";
+import job from "./config/cron.js";
 
 const app = express();
 const PORT = ENV.PORT;
+
+// cron job
+if (ENV.NODE_ENV === "production") job.start();
 
 app.use(express.json());
 
