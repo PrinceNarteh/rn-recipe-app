@@ -3,6 +3,7 @@ import "dotenv/config";
 import { ENV } from "./config/env.js";
 import { db } from "./config/db.js";
 import { favouritesTable } from "./db/schema.js";
+import { and, eq } from "drizzle-orm";
 
 const app = express();
 const PORT = ENV.PORT;
@@ -33,6 +34,24 @@ app.get("/api/favourite", async (req, res) => {
       .returning();
 
     res.status(201).json(newFavourite[0]);
+  } catch (error) {
+    console.log("error adding favourite", error);
+    res.status(500).json({ error: "something went wrong" });
+  }
+});
+
+app.delete("/api/favourites/:userId/:recipeId", async (req, res) => {
+  try {
+    const { userId, recipeId } = req.params;
+    await db
+      .delete(favouritesTable)
+      .where(
+        and(
+          eq(favouritesTable.userId, userId),
+          eq(favouritesTable.recipeId, parseInt(recipeId, 10)),
+        ),
+      );
+    res.status(200).json({ msg: "favourite removed successfully" });
   } catch (error) {
     console.log("error adding favourite", error);
     res.status(500).json({ error: "something went wrong" });
